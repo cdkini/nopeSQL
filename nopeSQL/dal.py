@@ -58,7 +58,7 @@ class DataAccessLayer:
         offset = page.num * self.page_size
         with open(self.file, "ab") as f:
             f.seek(offset)
-            f.writelines([page.data])
+            f.write(page.data)
 
     def allocate_empty_page(self) -> Page:
         return Page(num=0, data=b"")
@@ -68,18 +68,3 @@ class DataAccessLayer:
 
     def free_page(self, page: int) -> None:
         self.free_list.free_page(page)
-
-
-def main() -> None:
-    dal = DataAccessLayer.create()
-
-    page = dal.allocate_empty_page()
-    page.num = dal.get_next_page()
-
-    page.data = b"data"
-
-    dal.write_page(page)
-
-
-if __name__ == "__main__":
-    main()
