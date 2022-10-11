@@ -8,7 +8,7 @@ from dataclasses import dataclass
 @dataclass
 class Page:
     """
-    The small unit of data that is exchanged/stored in the KV store.
+    The smallest unit of data that is exchanged/stored in the KV store.
 
     Essentially a byte array that contains data and a certain amount of padding to ensure
     a consistent size (dictated by the DAL, which defaults to the page size set by the
@@ -43,7 +43,6 @@ class FreeList:
 class DataAccessLayer:
     """
     Handles all disk operations and manages how data is organized on the disk.
-
     """
     def __init__(self, file: pathlib.Path, page_size: int) -> None:
         self._file = file
