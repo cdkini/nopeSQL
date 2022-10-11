@@ -7,11 +7,23 @@ from dataclasses import dataclass
 
 @dataclass
 class Page:
+    """
+    The small unit of data that is exchanged/stored in the KV store.
+
+    Essentially a byte array that contains data and a certain amount of padding to ensure
+    a consistent size (dictated by the DAL, which defaults to the page size set by the
+    system architecture - Ex: 4096 bytes macOS).
+    """
     num: int = 0
     data: bytes = b""
 
 
 class FreeList:
+    """
+    Responsible for the allocation and deallocation of pages.
+
+    As pages become emptied, they must be freed to avoid fragmentation.
+    """
     def __init__(self) -> None:
         self._max_page = 0
         self._freed_pages = []
@@ -29,6 +41,10 @@ class FreeList:
 
 
 class DataAccessLayer:
+    """
+    Handles all disk operations and manages how data is organized on the disk.
+
+    """
     def __init__(self, file: pathlib.Path, page_size: int) -> None:
         self._file = file
         self._page_size = page_size
@@ -45,13 +61,14 @@ class DataAccessLayer:
         offset = page_num * self._page_size
         with open(self._file, "rb") as f:
             f.seek(offset)
-            data = f.read(self._page_size)
+            data = f.read(self._page_size) # Will include any \0 byte padding from `write_page`
 
         return Page(num=page_num, data=data)
 
     def write_page(self, page: Page) -> None:
         offset = page.num * self._page_size
 
+        # Necessary padding to ensure consistently sized writes
         data = page.data
         padding = offset - len(data)
         payload = data.ljust(padding, b"\0")
